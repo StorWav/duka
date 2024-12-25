@@ -35,7 +35,7 @@ def tokenize(buffer):
 
 
 def add_hour(ticks):
-    if len(ticks) is 0:
+    if len(ticks) == 0:
         return ticks
 
     hour_delta = 0
