@@ -6,7 +6,7 @@ from functools import reduce
 from io import BytesIO, DEFAULT_BUFFER_SIZE
 
 from fake_useragent import UserAgent
-from tenacity import retry, stop_after_delay, stop_after_attempt, wait_exponential, before_sleep_log
+from tenacity import retry, stop_after_delay, stop_after_attempt, wait_exponential, before_sleep_log, RetryError
 import logging
 import requests
 
@@ -78,7 +78,10 @@ def fetch_day(symbol, day):
     loop.run_until_complete(asyncio.wait(tasks))
 
     def add(acc, task):
-        acc.write(task.result())
+        try:
+            acc.write(task.result())
+        except RetryError as e:
+            print(f"{symbol} {day}: {e.last_attempt.attempt_number} {e.last_attempt.exception()}")
         return acc
 
     return reduce(add, tasks, BytesIO()).getbuffer()
