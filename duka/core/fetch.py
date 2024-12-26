@@ -13,10 +13,10 @@ import requests
 from ..core.utils import Logger, is_dst
 
 URL = "https://www.dukascopy.com/datafeed/{currency}/{year}/{month:02d}/{day:02d}/{hour:02d}h_ticks.bi5"
-ATTEMPTS = 5
+ATTEMPTS = 20  # 5
 ua = UserAgent()
 
-@retry(stop=(stop_after_delay(10) | stop_after_attempt(10)), wait=wait_exponential(multiplier=1, min=4, max=10), before_sleep=before_sleep_log(Logger, logging.DEBUG))
+# @retry(stop=(stop_after_delay(10) | stop_after_attempt(10)), wait=wait_exponential(multiplier=1, min=4, max=10), before_sleep=before_sleep_log(Logger, logging.DEBUG))
 async def get(url):
     loop = asyncio.get_event_loop()
     buffer = BytesIO()
@@ -81,7 +81,9 @@ def fetch_day(symbol, day):
         try:
             acc.write(task.result())
         except RetryError as e:
-            print(f"{symbol} {day}: {e.last_attempt.attempt_number} {e.last_attempt.exception()}")
+            Logger.error(f"{symbol} {day}: {e.last_attempt.attempt_number} {e.last_attempt.exception()}")
+        except Exception as e:
+            Logger.error(f"{symbol} {day}: {e}")
         return acc
 
     return reduce(add, tasks, BytesIO()).getbuffer()
