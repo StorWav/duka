@@ -10,7 +10,7 @@ from duka.core.utils import valid_timeframe, TimeFrame
 VERSION = '0.2.1'
 
 
-def main():
+def main(args):
     parser = argparse.ArgumentParser(prog='duka', usage='%(prog)s [options]')
     parser.add_argument('-v', '--version', action='version',
                         version='Version: %(prog)s-{version}'.format(version=VERSION))
@@ -26,7 +26,7 @@ def main():
                         help='use candles instead of ticks. Accepted values M1 M2 M5 M10 M15 M30 H1 H4',
                         default=TimeFrame.TICK)
     parser.add_argument('--header', action='store_true', help='include CSV header (default false)', default=False)
-    args = parser.parse_args()
+    args = parser.parse_args(args)
 
     if args.startdate is not None:
         start = args.startdate
@@ -43,4 +43,6 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    import sys
+
+    main(sys.argv[1:])
